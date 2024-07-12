@@ -1,0 +1,6 @@
+.vscode
+SQL
+venv
+odbc.ini
+.env
+__pycache__/
