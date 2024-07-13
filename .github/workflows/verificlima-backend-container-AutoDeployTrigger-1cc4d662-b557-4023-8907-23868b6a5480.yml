@@ -35,7 +35,7 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ${{ github.workspace }}/dockerfile 
-          registryUrl: docker.io
+          registryUrl: https://docker.io
           registryUsername: ${{ secrets.VERIFICLIMABACKENDCONTAINER_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.VERIFICLIMABACKENDCONTAINER_REGISTRY_PASSWORD }}
           containerAppName: verificlima-backend-container
