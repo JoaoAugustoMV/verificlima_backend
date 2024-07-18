@@ -1,4 +1,11 @@
-import os, urllib
+import time
+import os, urllib, logging
+logging.basicConfig(level=logging.DEBUG)
+import pyodbc
+
+from app.utils.SingletonMeta import SingletonMeta
+
+pyodbc.pooling = False
 
 from sqlalchemy import create_engine, insert, select
 from sqlalchemy.orm import Session
@@ -6,26 +13,37 @@ from sqlmodel import SQLModel
 
 from app.models.informacaoDiaTemperatura import InformacaoDiaTemperatura
 
-# Connect to the database
-odbc_string = os.getenv('stringConnectionAzure')
-connect_str = 'mssql+pyodbc:///?odbc_connect=' + urllib.parse.quote_plus(odbc_string)
-engine = create_engine(connect_str)
-SQLModel.metadata.create_all(engine)
-
-conn = engine.connect()
-session = Session(conn)
-
-class InfoRepository:
+SECONDS_TO_WAIT = 10
+class InfoRepository(metaclass=SingletonMeta):
 
     def __init__(self):
-        self.session = session
+        self.session = self.get_session()
+
+    def get_session(self, max_attempts=3, attempt=0):
+        while attempt < max_attempts:
+            odbc_string = os.getenv('stringConnectionAzure')
+            connect_str = 'mssql+pyodbc:///?odbc_connect=' + urllib.parse.quote_plus(odbc_string)
+
+            try:
+                engine = create_engine(connect_str, connect_args={"check_same_thread": False}, pool_recycle=1500)
+                SQLModel.metadata.create_all(engine)
+
+                conn = engine.connect()
+                return Session(conn)
+            
+            except Exception as e:
+                if attempt <= max_attempts:
+                    logging.error(f"{attempt} Try: Could not make the connection with the db", e)
+                    logging.info(f"Waiting {SECONDS_TO_WAIT} seconds for server goes up")
+                    time.sleep(SECONDS_TO_WAIT)
+                    logging.info(f"Try new connection")                    
+    
+        logging.error(f"Fail to connect after {attempt} attempts", e)
+        raise e
+                    
 
     def retornarTodos(self):
-        stmt = select(InformacaoDiaTemperatura)
-        # teste = self.session.get()
-        resul = self.session.query(InformacaoDiaTemperatura).all()
-        return self.session.query(InformacaoDiaTemperatura).all()
-        # return [r.InformacaoDiaTemperatura for r in self.session.execute(stmt)]
+        return self.session.query(InformacaoDiaTemperatura).all()        
     
     def retornarPorIdDiaEXDias(self, id_dia, x_dias):
         stmt = select(InformacaoDiaTemperatura).where(InformacaoDiaTemperatura.id_dia == id_dia).where(InformacaoDiaTemperatura.x_dias == x_dias)
