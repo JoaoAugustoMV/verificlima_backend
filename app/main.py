@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 
 from app.repository.Repository import InfoRepository
 from app.routers.informacaoDiaTemperatura import router as infoDiaTemp
+from app.routers.BFF import router as bff
 app = FastAPI(
     title="VerifiClima Backend",
     description='Descrição',
@@ -40,3 +41,4 @@ async def root():
     return {"message": "Hello World"}
 
 app.include_router(infoDiaTemp)
+app.include_router(bff)
