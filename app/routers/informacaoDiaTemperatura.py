@@ -13,6 +13,7 @@ router = APIRouter(prefix=f'/{tag}', tags=[tag])
 
 repository = InfoRepository()
 service = InfoService()
+
 @router.get("", response_model=list[InformacaoDiaTemperatura], name='Retornar Todos')
 async def retornarTodos():
     logging.info("Retornar todos")

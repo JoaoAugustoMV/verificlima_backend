@@ -1,4 +1,5 @@
 import time
+from typing import List
 import os, urllib, logging
 logging.basicConfig(level=logging.DEBUG)
 import pyodbc
@@ -52,6 +53,11 @@ class InfoRepository(metaclass=SingletonMeta):
     def retornarPorIdDia(self, id_dia):
         stmt = select(InformacaoDiaTemperatura).where(InformacaoDiaTemperatura.id_dia == id_dia)
         return self.session.execute(stmt).first()
+    
+    def retornarPorCdDia(self, cd_dia: int) -> List[InformacaoDiaTemperatura]:
+        # stmt = select(InformacaoDiaTemperatura).where(InformacaoDiaTemperatura.cd_dia == cd_dia)
+        return self.session.query(InformacaoDiaTemperatura).filter(InformacaoDiaTemperatura.cd_dia == cd_dia)
+        return self.session.execute(stmt)
     
     def inserirInfo(self, info: InformacaoDiaTemperatura):
         self.session.add(info)    
