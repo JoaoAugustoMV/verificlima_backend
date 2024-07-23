@@ -2,6 +2,7 @@ import logging
 
 from sqlalchemy import exc
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.repository.Repository import InfoRepository
 from app.routers.informacaoDiaTemperatura import router as infoDiaTemp
@@ -17,6 +18,15 @@ app = FastAPI(
         }
     )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 @app.middleware('http')
 async def try_db(request: Request, call_next):
     try:            
@@ -24,9 +34,9 @@ async def try_db(request: Request, call_next):
         return response
     
     except exc.SQLAlchemyError as e:
-        infoRepo = InfoRepository()
+        info_repo = InfoRepository()
         logging.info("Reconnect the session")
-        infoRepo.session = infoRepo.get_session()
+        info_repo.session = info_repo.get_session()
         logging.info("Retry with new session")
 
     try:

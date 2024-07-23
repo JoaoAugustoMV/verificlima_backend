@@ -43,31 +43,29 @@ class InfoRepository(metaclass=SingletonMeta):
         raise e
                     
 
-    def retornarTodos(self):
+    def get_all(self):
         return self.session.query(InformacaoDiaTemperatura).all()        
     
-    def retornarPorIdDiaEXDias(self, id_dia, x_dias):
+    def get_by_id_and_x_dias(self, id_dia, x_dias):
         stmt = select(InformacaoDiaTemperatura).where(InformacaoDiaTemperatura.id_dia == id_dia).where(InformacaoDiaTemperatura.x_dias == x_dias)
         return self.session.execute(stmt).first()
     
-    def retornarPorIdDia(self, id_dia):
+    def get_by_id_dia(self, id_dia):
         stmt = select(InformacaoDiaTemperatura).where(InformacaoDiaTemperatura.id_dia == id_dia)
         return self.session.execute(stmt).first()
     
-    def retornarPorCdDia(self, cd_dia: int) -> List[InformacaoDiaTemperatura]:
-        # stmt = select(InformacaoDiaTemperatura).where(InformacaoDiaTemperatura.cd_dia == cd_dia)
+    def get_by_cd_dia(self, cd_dia: int) -> List[InformacaoDiaTemperatura]:
         return self.session.query(InformacaoDiaTemperatura).filter(InformacaoDiaTemperatura.cd_dia == cd_dia)
-        return self.session.execute(stmt)
     
-    def inserirInfo(self, info: InformacaoDiaTemperatura):
+    def insert_info(self, info: InformacaoDiaTemperatura):
         self.session.add(info)    
         return  self.session.commit()
     
-    def inserirInfos(self, infos: list[InformacaoDiaTemperatura]):
+    def insert_infos(self, infos: list[InformacaoDiaTemperatura]):
         self.session.add_all(infos)
         return self.session.commit()
 
-    def updateByIdDay(self):
+    def update_by_id_day(self):
         pass
 
 

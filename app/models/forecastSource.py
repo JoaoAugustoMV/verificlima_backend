@@ -3,6 +3,6 @@ from pydantic import BaseModel
 
 class ForecastSource(BaseModel):
     name: str
-    urlSite: str 
-    minTemperature: int
-    maxTemperature: int
+    url_site: str 
+    min_temperature: int
+    max_temperature: int

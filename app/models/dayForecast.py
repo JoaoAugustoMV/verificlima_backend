@@ -4,6 +4,6 @@ from app.models.forecastSource import ForecastSource
 
 
 class DayForecast(BaseModel):
-    dayForecasted: str
-    forecastMadeIn: str
-    forecastSources: list[ForecastSource] 
+    day_forecasted: str
+    forecast_made_in: str
+    forecast_sources: list[ForecastSource] 

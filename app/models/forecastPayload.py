@@ -6,4 +6,4 @@ from app.models.dayForecast import DayForecast
 
 class ForecastPayload(BaseModel):
     madeIn: str
-    daysForecasts: List[DayForecast]
+    days_forecasts: List[DayForecast]

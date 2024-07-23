@@ -14,6 +14,6 @@ service = InfoService()
 
 
 @router.get("/get_current_week", response_model=list[ForecastPayload], name='Get current week info')
-async def retornarTodos():
+async def get_all():
     logging.info("get_current_week")
     return service.get_current_week()
