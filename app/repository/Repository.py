@@ -55,7 +55,7 @@ class InfoRepository(metaclass=SingletonMeta):
         return self.session.execute(stmt).first()
     
     def get_by_cd_dia(self, cd_dia: int) -> List[InformacaoDiaTemperatura]:
-        return self.session.query(InformacaoDiaTemperatura).filter(InformacaoDiaTemperatura.cd_dia == cd_dia)
+        return self.session.query(InformacaoDiaTemperatura).filter(InformacaoDiaTemperatura.cd_dia == cd_dia).all()
     
     def insert_info(self, info: InformacaoDiaTemperatura):
         self.session.add(info)    

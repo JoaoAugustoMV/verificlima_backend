@@ -36,7 +36,7 @@ class InfoService():
 
     def get_infos_by_cd_dia(self, cd_dia: int) -> List[InformacaoDiaTemperatura]:
         info = repository.get_by_cd_dia(cd_dia)
-        return info.all()        
+        return info
     
     def __get_all_cd_dia_of_week(self) -> dict[int, date]:
         today = datetime.now()
