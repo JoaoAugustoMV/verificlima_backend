@@ -25,6 +25,7 @@ stages:
       inputs:
         command: buildAndPush
         dockerfile: '$(Build.SourcesDirectory)/dockerfile'
+        repository: 'joaoaugustomv/verificlima-backend'
         tags: |
           $(tag)
   - job: DeployAppWeb
