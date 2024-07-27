@@ -23,13 +23,14 @@ stages:
     - task: Docker@2
       displayName: Build an image
       inputs:
-        command: buildAndPush
-        dockerfile: '$(Build.SourcesDirectory)/dockerfile'
+        containerRegistry: 'DockerRegistryConnection'
         repository: 'joaoaugustomv/verificlima-backend'
-        tags: |
-          $(tag)
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: '$(tag)'
   - job: DeployAppWeb
     displayName: Deploy App Web
+    dependsOn: BuildAndPushJob
     steps:
       - task: AzureWebAppContainer@1
         inputs:
