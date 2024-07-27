@@ -27,7 +27,7 @@ stages:
         repository: 'joaoaugustomv/verificlima-backend'
         command: 'buildAndPush'
         Dockerfile: '**/dockerfile'
-        tags: '$(tag)'
+        tags: 'latest'
   - job: DeployAppWeb
     displayName: Deploy App Web
     dependsOn: BuildAndPushJob
@@ -36,5 +36,5 @@ stages:
         inputs:
           azureSubscription: 'Assinatura do Azure 1(202ccb71-b2af-48ae-af39-021758856113)'
           appName: 'verificlima-backend-app-web'
-          imageName: 'joaoaugustomv/verificlima-backend:$(tag)'
+          imageName: 'joaoaugustomv/verificlima-backend:latest'
         
