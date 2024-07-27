@@ -4,7 +4,7 @@
 #     3: '',
 #     5: ''
 # }
-DAYS_TO_ADD = [0, 1, 3, 5]
+DAYS_TO_ADD = [0, 1, 3, 5, 7]
 
 DAYS_OF_WEEK_PT_BR = {
     0: 'SEG',    
