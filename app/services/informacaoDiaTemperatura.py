@@ -1,4 +1,5 @@
 # from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+import asyncio, datetime
 from datetime import datetime, date, timedelta
 from typing import List
 from app.models.dayForecast import DayForecast
@@ -12,35 +13,44 @@ repository = InfoRepository()
 
 class InfoService():
 
-    def get_all(self) -> List[InformacaoDiaTemperatura]:
-        return repository.get_all()
+    async def get_all(self) -> List[InformacaoDiaTemperatura]:
+        return await repository.get_all()
     
     def save_infos(self, infos: List[InformacaoDiaTemperatura]):
         return repository.insert_infos(infos)
     
-    def get_current_week(self):        
+    async def get_current_week(self):        
         all_week = self.__get_all_cd_dia_of_week()
 
-        return self.get_payload_for_front(all_week)        
+        test = await self.get_payload_for_front(all_week)
+        return test        
     
-    def get_payload_for_front(self, all_week: dict[int, date]) -> List[InformacaoDiaTemperatura]:
-        payloads = []
+    async def get_payload_for_front(self, all_week: dict[int, date]) -> List[InformacaoDiaTemperatura]:
+        coroutines = []
         for cd_dia, day_date in all_week.items():
             
-            str_day = self.__return_str_day_forecast(cd_dia, day_date)
-            infos_by_cd_dia = self.get_infos_by_cd_dia(cd_dia)
-            if infos_by_cd_dia:                                
-                payloads.append(
-                    ForecastPayload(
-                        madeIn=str_day, 
-                        days_forecasts=self.__map_to_days_forecast(infos_by_cd_dia, str_day))
-                    )
-                
-        return payloads
+            coroutines.append(self.__get_forecasts_payloads(cd_dia, day_date))
+        results = await asyncio.gather(*coroutines)
+        return [r for r in results if r ]        
 
-    def get_infos_by_cd_dia(self, cd_dia: int) -> List[InformacaoDiaTemperatura]:
-        info = repository.get_by_cd_dia(cd_dia)
-        return info
+    async def __get_forecasts_payloads(self, cd_dia, day_date):
+        str_day = self.__return_str_day_forecast(cd_dia, day_date)
+        # current = datetime.now()
+        # print(cd_dia, day_date, 'start')
+        infos_by_cd_dia = await self.get_infos_by_cd_dia(cd_dia)
+        # print(cd_dia, day_date, 'end')
+        # end = datetime.now()
+        # diff = end - current
+        # print(cd_dia, day_date, diff.seconds)
+        if infos_by_cd_dia:                                
+            return ForecastPayload(
+                        madeIn=str_day, 
+                        days_forecasts=self.__map_to_days_forecast(infos_by_cd_dia, str_day)
+                    )
+                    
+
+    async def get_infos_by_cd_dia(self, cd_dia: int) -> List[InformacaoDiaTemperatura]:
+        return await repository.get_by_cd_dia(cd_dia)        
     
     def __get_all_cd_dia_of_week(self) -> dict[int, date]:
         today = datetime.now()

@@ -16,7 +16,7 @@ service = InfoService()
 @router.get("", response_model=list[InformacaoDiaTemperatura], name='Retornar Todos')
 async def retornarTodos():
     logging.info("Retornar todos")
-    return service.get_all()
+    return await service.get_all()
 
 @router.get("/{id_dia}", response_model=InformacaoDiaTemperatura, name='Retornar por Id dia')
 async def get_by_id_dia(id_dia: int):
