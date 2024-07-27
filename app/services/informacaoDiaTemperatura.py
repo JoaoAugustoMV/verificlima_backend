@@ -8,6 +8,9 @@ from app.repository.Repository import InfoRepository
 from app.models.informacaoDiaTemperatura import InformacaoDiaTemperatura
 from app.utils.configs import DAYS_OF_WEEK_PT_BR, DAYS_TO_ADD
 
+from cachetools import TTLCache, cached
+cache = TTLCache(maxsize=1, ttl=1800)
+
 repository = InfoRepository()
 
 class InfoService():
@@ -18,6 +21,7 @@ class InfoService():
     def save_infos(self, infos: List[InformacaoDiaTemperatura]):
         return repository.insert_infos(infos)
     
+    @cached(cache)
     def get_current_week(self):        
         all_week = self.__get_all_cd_dia_of_week()
 
@@ -25,13 +29,17 @@ class InfoService():
     
     def get_payload_for_front(self, all_week: dict[int, date]) -> List[InformacaoDiaTemperatura]:
         payloads = []
-        for cd_dia, day in all_week.items():
+        for cd_dia, day_date in all_week.items():
             
-            madeIn = self.__made_in_by_cd_dia(cd_dia, day)
-            days_infos = self.get_infos_by_cd_dia(cd_dia)
-            if days_infos:                
-                test = self.__mapper_to_front(days_infos)
-                payloads.append(ForecastPayload(madeIn=madeIn, days_forecasts=test))
+            str_day = self.__return_str_day_forecast(cd_dia, day_date)
+            infos_by_cd_dia = self.get_infos_by_cd_dia(cd_dia)
+            if infos_by_cd_dia:                                
+                payloads.append(
+                    ForecastPayload(
+                        madeIn=str_day, 
+                        days_forecasts=self.__map_to_days_forecast(infos_by_cd_dia, str_day))
+                    )
+                
         return payloads
 
     def get_infos_by_cd_dia(self, cd_dia: int) -> List[InformacaoDiaTemperatura]:
@@ -42,7 +50,7 @@ class InfoService():
         today = datetime.now()
 
         all_cd_dia = {}
-        for a in range(0, DAYS_TO_ADD[-1]):
+        for a in range(0, DAYS_TO_ADD[-1] + 1):
             day = (today + timedelta(days=a)).date()
             if day.day < 10:
                 day_str = f'0{day.day}'
@@ -62,40 +70,35 @@ class InfoService():
 
         return all_cd_dia
 
-    def __made_in_by_cd_dia(self, cd_dia: int, day: date) -> str:
+    def __return_str_day_forecast(self, cd_dia: int, day_date: date) -> str:
         diff_cd_dia = self.today_cd_dia - cd_dia
+        day_forecast_str = f'DIA {day_date.day}/{day_date.month} - {DAYS_OF_WEEK_PT_BR[day_date.weekday()]}'
         if diff_cd_dia == 0:
-            return 'Hoje'
+            day_forecast_str += f'(HOJE)'
         elif diff_cd_dia == 1:
-            return 'Amanha'
-        else:
-            return DAYS_OF_WEEK_PT_BR[day.weekday()]
+            day_forecast_str += f'(AMANHA)'
+    
+        return f'{day_forecast_str}'        
             
-    def __mapper_to_front(self, infos: List[InformacaoDiaTemperatura]) -> List[DayForecast]:
+    def __map_to_days_forecast(self, infos_by_cd_dia: List[InformacaoDiaTemperatura], str_day: str) -> List[DayForecast]:
         days_forecast = []
         for x_dias in DAYS_TO_ADD:
-            infos_x_dias = [info for info in infos if info.x_dias == x_dias]
+            infos_x_dias = [info for info in infos_by_cd_dia if info.x_dias == x_dias]
             if infos_x_dias:
-                day_forecast_str = self.__get_day_forecasted(infos_x_dias[0].cd_dia, x_dias)
-                forecastSources = self.__get_forecast_sources(infos_x_dias)
-                days_forecast.append(DayForecast(day_forecasted=day_forecast_str, forecast_made_in=f'{infos_x_dias[0].x_dias} dias atras', forecast_sources=forecastSources))
+                day_forecast_str = str_day
+                forecastSources = self.__map_forecast_sources(infos_x_dias)
+                days_forecast.append(
+                    DayForecast(
+                        day_forecasted=day_forecast_str,
+                        forecast_made_in=f'{infos_x_dias[0].x_dias} dias atras',
+                        forecast_sources=forecastSources)
+                    )
+                
         return days_forecast
-
-    def __get_day_forecasted(self, cd_dia:int, x_dias: int) -> str:
-        today = datetime.now()
-        day = (today + timedelta(days=x_dias)).date()
-        day_forecast_str = f'DIA {day.day}/{day.month} - {DAYS_OF_WEEK_PT_BR[day.weekday()]}'
-        if x_dias == 0:
-            day_forecast_str += f'(HOJE)'
-        elif x_dias == 1:
-            day_forecast_str += f"(AMANHA)"
-
-        return day_forecast_str
-#   
-    def __get_forecast_sources(self, infos: List[InformacaoDiaTemperatura]) -> List[ForecastSource]:
+       
+    def __map_forecast_sources(self, infos: List[InformacaoDiaTemperatura]) -> List[ForecastSource]:
         forecastSources = []
-        for info in infos:
-            # TODO criar logica das fontes de dados?
+        for info in infos:            
             if int(info.x_dias) == 0:
                 forecastSource = ForecastSource(
                     name=info.fonte,
