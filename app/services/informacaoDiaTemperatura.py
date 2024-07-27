@@ -8,6 +8,9 @@ from app.repository.Repository import InfoRepository
 from app.models.informacaoDiaTemperatura import InformacaoDiaTemperatura
 from app.utils.configs import DAYS_OF_WEEK_PT_BR, DAYS_TO_ADD
 
+from cachetools import TTLCache, cached
+cache = TTLCache(maxsize=1, ttl=1800)
+
 repository = InfoRepository()
 
 class InfoService():
@@ -18,6 +21,7 @@ class InfoService():
     def save_infos(self, infos: List[InformacaoDiaTemperatura]):
         return repository.insert_infos(infos)
     
+    @cached(cache)
     def get_current_week(self):        
         all_week = self.__get_all_cd_dia_of_week()
 
