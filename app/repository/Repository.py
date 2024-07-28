@@ -33,6 +33,7 @@ class InfoRepository(metaclass=SingletonMeta):
                 return Session(conn)
             
             except Exception as e:
+                attempt += 1
                 if attempt <= max_attempts:
                     logging.error(f"{attempt} Try: Could not make the connection with the db", e)
                     logging.info(f"Waiting {SECONDS_TO_WAIT} seconds for server goes up")
