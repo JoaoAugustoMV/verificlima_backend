@@ -4,9 +4,10 @@ from sqlalchemy import text
 from app.repository.Repository import InfoRepository
 from app.utils.configs import SECONDS_TO_KEEP_ALIVE
 
-logging.basicConfig(level=logging.DEBUG)
-repository = InfoRepository()   
-async def keep_alive_session():    
+
+repository = InfoRepository()
+async def keep_alive_session():
+    logging.info("Starting keep alive function")
     while True:
         await asyncio.sleep(SECONDS_TO_KEEP_ALIVE)
         try:

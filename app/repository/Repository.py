@@ -1,7 +1,7 @@
 import time
 from typing import List
 import os, urllib, logging
-logging.basicConfig(level=logging.DEBUG)
+
 import pyodbc
 
 from app.utils.SingletonMeta import SingletonMeta
