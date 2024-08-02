@@ -1,5 +1,6 @@
+import asyncio
 import logging
-from threading import Thread
+
 from sqlalchemy import exc
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,7 +8,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.repository.Repository import InfoRepository
 from app.routers.informacaoDiaTemperatura import router as infoDiaTemp
 from app.routers.BFF import router as bff
-from app.utils.thread_keep_alive import keep_connection_alive
+from app.utils.keep_alive import keep_alive_session
+from app.utils.setup_logs import setup_logging
+
+async def main():
+    setup_logging()
+    await keep_alive_session()
+
+loop = asyncio.get_event_loop()
+loop.create_task(main())
 app = FastAPI(
     title="VerifiClima Backend",
     description='Descrição',
@@ -53,6 +62,3 @@ async def root():
 
 app.include_router(infoDiaTemp)
 app.include_router(bff)
-
-
-keep_connection_alive()

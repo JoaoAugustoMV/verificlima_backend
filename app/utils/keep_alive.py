@@ -1,16 +1,15 @@
-import time
 import logging
-from threading import Thread
-from sqlalchemy.orm import Session
+import asyncio
 from sqlalchemy import text
-
 from app.repository.Repository import InfoRepository
+from app.utils.configs import SECONDS_TO_KEEP_ALIVE
 
-repository = InfoRepository()   
-def query_keep_alive():
 
+repository = InfoRepository()
+async def keep_alive_session():
+    logging.info("Starting keep alive function")
     while True:
-        time.sleep(900)
+        await asyncio.sleep(SECONDS_TO_KEEP_ALIVE)
         try:
             logging.info("Try  to ping - keep alive")
             repository.session.execute(text('SELECT 1'))
@@ -18,8 +17,3 @@ def query_keep_alive():
         except Exception as e:
             logging.error("Error - Keep Alive", e)
             break
-
-def keep_connection_alive():
-    keep_alive_thread = Thread(target=query_keep_alive)
-    keep_alive_thread.daemon = True
-    keep_alive_thread.start()
