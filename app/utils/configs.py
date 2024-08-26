@@ -1,3 +1,5 @@
+import os
+
 SECONDS_TO_KEEP_ALIVE = 60 * 15
 
 DAYS_TO_ADD = [0, 1, 3, 5, 7]
@@ -11,3 +13,6 @@ DAYS_OF_WEEK_PT_BR = {
     5: 'SAB',    
     6: 'DOM'
 }
+
+URI_COSMO_DB = os.getenv("uriCosmoDB")
+KEY_COSMO_DB = os.getenv("primaryKeyCosmoDB")

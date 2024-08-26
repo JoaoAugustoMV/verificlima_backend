@@ -18,8 +18,8 @@ class InfoService():
     def get_all(self) -> List[InformacaoDiaTemperatura]:
         return repository.get_all()
     
-    def save_infos(self, infos: List[InformacaoDiaTemperatura]):
-        return repository.insert_infos(infos)
+    async def save_infos(self, infos: List[InformacaoDiaTemperatura]):
+        return await repository.insert_infos(infos)
     
     @cached(cache)
     def get_current_week(self):        

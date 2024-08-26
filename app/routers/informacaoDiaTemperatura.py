@@ -3,6 +3,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 
 from app.models.informacaoDiaTemperatura import InformacaoDiaTemperatura 
+from app.models.informationDayForecast import InformationDayForecast
 from app.repository.Repository import InfoRepository
 from app.models.response import Response
 from app.services.informacaoDiaTemperatura import InfoService
@@ -28,10 +29,10 @@ async def get_by_id_dia(id_dia: int):
     return repository.get_by_id_dia(id_dia)
 
 @router.post("", name='Inserir multiplos registros de info')
-async def save_infos(infos: list[InformacaoDiaTemperatura]):
+async def save_infos(infos: list[InformationDayForecast]):
     try:
         logging.info("Salvando infos")
-        service.save_infos(infos)
+        await service.save_infos(infos)
     except Exception as e:
         logging.error( e)
         raise HTTPException(status_code=400, detail=str(e))
