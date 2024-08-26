@@ -13,7 +13,7 @@ from app.utils.setup_logs import setup_logging
 
 async def main():
     setup_logging()
-    await keep_alive_session()
+    # await keep_alive_session()
 
 loop = asyncio.get_event_loop()
 loop.create_task(main())
