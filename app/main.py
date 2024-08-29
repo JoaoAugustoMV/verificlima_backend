@@ -8,12 +8,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.repository.Repository import InfoRepository
 from app.routers.informacaoDiaTemperatura import router as infoDiaTemp
 from app.routers.BFF import router as bff
-from app.utils.keep_alive import keep_alive_session
 from app.utils.setup_logs import setup_logging
 
 async def main():
-    setup_logging()
-    # await keep_alive_session()
+    setup_logging()    
 
 loop = asyncio.get_event_loop()
 loop.create_task(main())
